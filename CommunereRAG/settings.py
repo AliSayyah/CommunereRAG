@@ -1,6 +1,7 @@
 import enum
 from pathlib import Path
 from tempfile import gettempdir
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from yarl import URL
@@ -46,6 +47,12 @@ class Settings(BaseSettings):
     db_base: str = "admin"
     db_echo: bool = False
 
+    # Variables for Redis
+    redis_host: str = "CommunereRAG-redis"
+    redis_port: int = 6379
+    redis_user: Optional[str] = None
+    redis_pass: Optional[str] = None
+    redis_base: Optional[int] = None
     # This variable is used to define
     # multiproc_dir. It's required for [uvi|guni]corn projects.
     prometheus_dir: Path = TEMP_DIR / "prom"
@@ -70,7 +77,27 @@ class Settings(BaseSettings):
         env_file=".env",
         env_prefix="COMMUNERERAG_",
         env_file_encoding="utf-8",
+        extra="ignore",
     )
+
+    @property
+    def redis_url(self) -> URL:
+        """
+        Assemble REDIS URL from settings.
+
+        :return: redis URL.
+        """
+        path = ""
+        if self.redis_base is not None:
+            path = f"/{self.redis_base}"
+        return URL.build(
+            scheme="redis",
+            host=self.redis_host,
+            port=self.redis_port,
+            user=self.redis_user,
+            password=self.redis_pass,
+            path=path,
+        )
 
 
 settings = Settings()
