@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "communere_rag"
+name = "CommunereRAG"
 version = "0.1.0"
 description = ""
 authors = [
@@ -12,7 +12,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.115.6"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
 uvicorn = { version = "^0.34.0", extras = ["standard"] }
 pydantic = "^2.10.4"
 pydantic-settings = "^2.7.0"
@@ -24,6 +24,15 @@ beanie = "^1.28.0"
 prometheus-client = "^0.21.1"
 prometheus-fastapi-instrumentator = "7.0.0"
 loguru = "^0.7.3"
+taskiq = {extras = ["redis"], version = "^0.11.10"}
+taskiq-fastapi = "^0"
+redis = {extras = ["hiredis"], version = "^5.2.1"}
+pdfminer-six = "^20240706"
+taskiq-redis = "^1.0.2"
+chromadb = "^0.5.23"
+openai = "^1.58.1"
+pysqlite3-binary = "^0.5.4"
+nltk = "^3.9.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -36,6 +45,7 @@ pytest-cov = "^6.0.0"
 anyio = "^4.7.0"
 pytest-env = "^1.1.5"
 httpx = "^0.28.1"
+taskiq = { version = "^0", extras = ["reload"] }
 
 [tool.isort]
 profile = "black"
