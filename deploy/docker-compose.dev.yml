@@ -11,3 +11,10 @@ services:
     environment:
       # Enables autoreload.
       COMMUNERERAG_RELOAD: "True"
+
+  taskiq-worker:
+    build:
+      context: .
+    volumes:
+      # Adds current directory as volume.
+      - .:/app/src/

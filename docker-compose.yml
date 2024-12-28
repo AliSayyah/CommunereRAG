@@ -10,6 +10,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      chroma:
+        condition: service_started
     environment:
       COMMUNERERAG_HOST: 0.0.0.0
       COMMUNERERAG_DB_HOST: CommunereRAG-db
@@ -17,6 +19,7 @@ services:
       COMMUNERERAG_DB_USER: CommunereRAG
       COMMUNERERAG_DB_PASS: CommunereRAG
       COMMUNERERAG_DB_BASE: admin
+      COMMUNERERAG_REDIS_HOST: CommunereRAG-redis
   db:
     image: mongo:7.0
     hostname: CommunereRAG-db
@@ -33,19 +36,33 @@ services:
       timeout: 5s
       retries: 40
 
+  taskiq-worker:
+    <<: *main_app
+    labels: [ ]
+    command:
+      - taskiq
+      - worker
+      - CommunereRAG.tkq:broker
+
   chroma:
-    image: ghcr.io/chroma-core/chroma:latest
+    image: chromadb/chroma:latest
     volumes:
-      - index_data:/index_data
-    ports:
-      - "8000:8000"
-    networks:
-      - net
+      - index_data:/chroma_storage
+#    environment:
+#      - CHROMA_DB_IMPL=duckdb+parquet
+#      - CHROMA_PERSIST_DIRECTORY=/chroma_storage
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: "CommunereRAG-redis"
+    restart: always
     environment:
-      - IS_PERSISTENT=TRUE
-      - CHROMA_SERVER_AUTHN_PROVIDER=${CHROMA_SERVER_AUTHN_PROVIDER}
-      - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=${CHROMA_SERVER_AUTHN_CREDENTIALS_FILE}
-      - CHROMA_SERVER_AUTHN_CREDENTIALS=${CHROMA_SERVER_AUTHN_CREDENTIALS}
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
 volumes:
   CommunereRAG-db-data:
     name: CommunereRAG-db-data
