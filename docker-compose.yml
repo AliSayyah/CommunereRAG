@@ -1,0 +1,52 @@
+services:
+  api: &main_app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: communere_rag:${COMMUNERERAG_VERSION:-latest}
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      COMMUNERERAG_HOST: 0.0.0.0
+      COMMUNERERAG_DB_HOST: CommunereRAG-db
+      COMMUNERERAG_DB_PORT: 27017
+      COMMUNERERAG_DB_USER: CommunereRAG
+      COMMUNERERAG_DB_PASS: CommunereRAG
+      COMMUNERERAG_DB_BASE: admin
+  db:
+    image: mongo:7.0
+    hostname: CommunereRAG-db
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "CommunereRAG"
+      MONGO_INITDB_ROOT_PASSWORD: "CommunereRAG"
+    command: "mongod"
+    volumes:
+      - CommunereRAG-db-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 40
+
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    volumes:
+      - index_data:/index_data
+    ports:
+      - "8000:8000"
+    networks:
+      - net
+    environment:
+      - IS_PERSISTENT=TRUE
+      - CHROMA_SERVER_AUTHN_PROVIDER=${CHROMA_SERVER_AUTHN_PROVIDER}
+      - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=${CHROMA_SERVER_AUTHN_CREDENTIALS_FILE}
+      - CHROMA_SERVER_AUTHN_CREDENTIALS=${CHROMA_SERVER_AUTHN_CREDENTIALS}
+volumes:
+  CommunereRAG-db-data:
+    name: CommunereRAG-db-data
+  index_data:
