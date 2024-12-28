@@ -23,7 +23,6 @@ def get_app() -> FastAPI:
     configure_logging()
     app = FastAPI(
         title="CommunereRAG",
-        version=metadata.version("CommunereRAG"),
         lifespan=lifespan_setup,
         docs_url=None,
         redoc_url=None,
