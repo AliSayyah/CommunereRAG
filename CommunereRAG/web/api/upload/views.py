@@ -12,7 +12,7 @@ from CommunereRAG.web.api.upload.tasks import process_document_task
 router = APIRouter()
 
 
-@router.post("/upload")
+@router.post("")
 async def upload_document(
     file: UploadFile,
     metadata: DocumentMetadata = Depends(),
