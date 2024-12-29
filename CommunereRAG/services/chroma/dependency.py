@@ -10,9 +10,6 @@ async def get_chroma_client(
 ) -> AsyncGenerator[AsyncClientAPI, None]:  # pragma: no cover
     """
     Returns Chroma client.
-
-    :param request: current request.
-    :returns:  chroma client.
     """
     return request.app.state.chroma_client
 

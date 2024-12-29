@@ -50,13 +50,6 @@ def split_text_into_chunks(text, max_tokens=1000, language: str = "english"):
 def clean_pdf_text(text: str, language: str = "en") -> str:
     """
     Cleans up the extracted text from a PDF file.
-
-    Args:
-        text (str): The raw extracted text.
-        language (str): The language of the text for specific cleaning rules.
-
-    Returns:
-        str: The cleaned-up text.
     """
     # Step 1: Remove control characters
     text = re.sub(r"[\x00-\x1F\x7F]", "", text)
