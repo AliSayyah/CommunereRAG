@@ -29,7 +29,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: "CommunereRAG"
     command: "mongod"
     volumes:
-      - CommunereRAG-db-data:/data/db
+      - db-data:/data/db
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
@@ -47,7 +47,7 @@ services:
   chroma:
     image: chromadb/chroma:latest
     volumes:
-      - index_data:/chroma/chroma
+      - chroma_data:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=${PERSIST_DIRECTORY:-/chroma/chroma}
@@ -70,6 +70,5 @@ services:
       timeout: 3s
       retries: 50
 volumes:
-  CommunereRAG-db-data:
-    name: CommunereRAG-db-data
-  index_data:
+  db-data:
+  chroma_data:
