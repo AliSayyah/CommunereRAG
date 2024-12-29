@@ -10,7 +10,4 @@ from CommunereRAG.db.models.query_model import QueryLog
 
 def load_all_models() -> Sequence[Type[Document]]:
     """Load all models from this folder."""
-    return [
-        DocumentRecord,
-        QueryLog
-    ]
+    return [DocumentRecord, QueryLog]

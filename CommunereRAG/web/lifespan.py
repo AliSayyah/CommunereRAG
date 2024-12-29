@@ -17,6 +17,7 @@ from CommunereRAG.settings import settings
 from CommunereRAG.tkq import broker
 from openai import AsyncOpenAI
 
+
 async def _setup_db(app: FastAPI) -> None:
     client = AsyncIOMotorClient(str(settings.db_url))  # type: ignore
     app.state.db_client = client
@@ -44,6 +45,7 @@ def _setup_nltk(app: FastAPI) -> None:
 async def _setup_openai(app: FastAPI) -> None:
     client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     app.state.openai_client = client
+
 
 def setup_prometheus(app: FastAPI) -> None:  # pragma: no cover
     """

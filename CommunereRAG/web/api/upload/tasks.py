@@ -47,6 +47,8 @@ def split_text_into_chunks(text, max_tokens=1000, language: str = "english"):
         chunks.append(" ".join(current_chunk))
 
     return chunks
+
+
 def clean_pdf_text(text: str, language: str = "en") -> str:
     """
     Cleans up the extracted text from a PDF file.
@@ -55,7 +57,9 @@ def clean_pdf_text(text: str, language: str = "en") -> str:
     text = re.sub(r"[\x00-\x1F\x7F]", "", text)
 
     # Step 2: Normalize whitespace
-    text = re.sub(r"[ \t]+", " ", text)  # Replace tabs and multiple spaces with a single space
+    text = re.sub(
+        r"[ \t]+", " ", text
+    )  # Replace tabs and multiple spaces with a single space
     text = re.sub(r"\s*\n\s*", "\n", text)  # Remove extra spaces around newlines
     text = re.sub(r"\n{2,}", "\n", text)  # Collapse multiple newlines
 
@@ -70,16 +74,23 @@ def clean_pdf_text(text: str, language: str = "en") -> str:
         text = re.sub(r"([.,!?])(\S)", r"\1 \2", text)  # Ensure space after punctuation
     elif language == "persian":
         # Persian-specific fixes: Normalize spacing for Persian punctuation
-        text = re.sub(r"\s+([،؛؟])", r"\1", text)  # Remove spaces before Persian punctuation
-        text = re.sub(r"([،؛؟])(\S)", r"\1 \2", text)  # Ensure space after Persian punctuation
+        text = re.sub(
+            r"\s+([،؛؟])", r"\1", text
+        )  # Remove spaces before Persian punctuation
+        text = re.sub(
+            r"([،؛؟])(\S)", r"\1 \2", text
+        )  # Ensure space after Persian punctuation
 
     # Step 5: Remove unwanted characters
-    text = re.sub(r"[^\S\r\n]+", " ", text)  # Remove non-visible characters except spaces/newlines
+    text = re.sub(
+        r"[^\S\r\n]+", " ", text
+    )  # Remove non-visible characters except spaces/newlines
 
     # Step 6: Strip leading/trailing whitespace
     text = text.strip()
 
     return text
+
 
 @broker.task(retry_on_error=True)
 async def process_document_task(
@@ -98,7 +109,9 @@ async def process_document_task(
     # cleanup the text
     cleaned_text = clean_pdf_text(text_content, language=metadata["language"])
 
-    chunks = split_text_into_chunks(cleaned_text, max_tokens=1000, language=metadata["language"])
+    chunks = split_text_into_chunks(
+        cleaned_text, max_tokens=1000, language=metadata["language"]
+    )
 
     # Store in ChromaDB
     collection = await chroma_client.get_or_create_collection(

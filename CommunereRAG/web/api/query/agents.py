@@ -14,13 +14,19 @@ async def retrieval_agent(query: str, top_k: int, chroma_collection: AsyncCollec
         documents.append({"content": doc, "metadata": metadata})
     return documents
 
-async def refinement_agent(openai_client: AsyncOpenAI, context: str, model: str = "gpt-4o"):
+
+async def refinement_agent(
+    openai_client: AsyncOpenAI, context: str, model: str = "gpt-4o"
+):
     """
     Refines the response using the retrieved context and the LLM.
     """
 
     messages = [
-        {"role": "system", "content": "Your task is to cleanup the context user sends to you. the final result should be a clean and clear text without extra characters. do not add or modify the text. only return the final result without extra text like 'here is your refined text:"},
+        {
+            "role": "system",
+            "content": "Your task is to cleanup the context user sends to you. the final result should be a clean and clear text without extra characters. do not add or modify the text. only return the final result without extra text like 'here is your refined text:",
+        },
         {"role": "user", "content": context},
     ]
 

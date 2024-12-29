@@ -6,7 +6,12 @@ from CommunereRAG.db.models import QueryLog
 from CommunereRAG.web.api.query.agents import retrieval_agent, refinement_agent
 
 
-async def run_agent_chain(tool_call: Function, openai_client: AsyncOpenAI, chroma_client: AsyncClientAPI, ef: EmbeddingFunction):
+async def run_agent_chain(
+    tool_call: Function,
+    openai_client: AsyncOpenAI,
+    chroma_client: AsyncClientAPI,
+    ef: EmbeddingFunction,
+):
     """
     Handles the tool call logic for document retrieval and response refinement.
     """
@@ -16,11 +21,13 @@ async def run_agent_chain(tool_call: Function, openai_client: AsyncOpenAI, chrom
             "query": parameters["query"],
             "top_k": parameters.get("top_k", 10),
         }
-        collection = await chroma_client.get_or_create_collection(name="documents", embedding_function=ef)
+        collection = await chroma_client.get_or_create_collection(
+            name="documents", embedding_function=ef
+        )
         retrieved_docs = await retrieval_agent(
             query=query_params["query"],
             top_k=query_params["top_k"],
-            chroma_collection=collection
+            chroma_collection=collection,
         )
         # Refine response
         refined_text = await refinement_agent(
@@ -33,7 +40,9 @@ async def run_agent_chain(tool_call: Function, openai_client: AsyncOpenAI, chrom
         raise ValueError(f"Error during tool call handling: {str(e)}")
 
 
-async def log_query(query_text: str, response_text: str, refined_text: str, duration: float):
+async def log_query(
+    query_text: str, response_text: str, refined_text: str, duration: float
+):
     """
     Logs the query and response to the database.
     """

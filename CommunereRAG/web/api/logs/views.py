@@ -6,6 +6,7 @@ from CommunereRAG.db.models.query_model import QueryLog
 
 router = APIRouter()
 
+
 @router.get("")
 async def get_logs(limit: int = 10):
     """

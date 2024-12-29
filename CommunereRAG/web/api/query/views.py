@@ -6,8 +6,11 @@ from openai import AsyncOpenAI
 
 from CommunereRAG.services.chroma.dependency import get_chroma_client, get_ef
 from CommunereRAG.services.openai.dependency import get_openai_client
-from CommunereRAG.web.api.query.agent_utils import run_agent_chain, log_query, \
-    get_tools_definition
+from CommunereRAG.web.api.query.agent_utils import (
+    run_agent_chain,
+    log_query,
+    get_tools_definition,
+)
 from CommunereRAG.web.api.query.schema import QueryRequest
 
 router = APIRouter()
@@ -50,27 +53,29 @@ async def query_document(
         tool_call_id = response_text.tool_calls[0].id
 
         refined_text = await run_agent_chain(
-                tool_call, openai_client, chroma_client, ef
-            )
+            tool_call, openai_client, chroma_client, ef
+        )
 
         # Generate the final response
         final_response = await openai_client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    system_prompt,
-                    {"role": "user", "content": query_text},
-                    response_text,
-                    {
-                        "role": "tool",
-                        "content": refined_text,
-                        "tool_call_id": tool_call_id,
-                    },
-                ],
-            )
+            model="gpt-4o",
+            messages=[
+                system_prompt,
+                {"role": "user", "content": query_text},
+                response_text,
+                {
+                    "role": "tool",
+                    "content": refined_text,
+                    "tool_call_id": tool_call_id,
+                },
+            ],
+        )
         response_text = final_response.choices[0].message.content
 
         # Log the query and response
-        await log_query(query_text, response_text, refined_text, time.time() - start_time)
+        await log_query(
+            query_text, response_text, refined_text, time.time() - start_time
+        )
 
         return {"response": response_text}
 
