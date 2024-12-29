@@ -14,19 +14,19 @@ services:
         condition: service_started
     environment:
       COMMUNERERAG_HOST: 0.0.0.0
-      COMMUNERERAG_DB_HOST: CommunereRAG-db
-      COMMUNERERAG_DB_PORT: 27017
-      COMMUNERERAG_DB_USER: CommunereRAG
-      COMMUNERERAG_DB_PASS: CommunereRAG
-      COMMUNERERAG_DB_BASE: admin
-      COMMUNERERAG_REDIS_HOST: CommunereRAG-redis
+      COMMUNERERAG_DB_HOST: ${DB_HOST}
+      COMMUNERERAG_DB_PORT: ${DB_PORT}
+      COMMUNERERAG_DB_USER: ${DB_USER}
+      COMMUNERERAG_DB_PASS: ${DB_PASS}
+      COMMUNERERAG_DB_BASE: ${DB_BASE}
+      COMMUNERERAG_REDIS_HOST: ${REDIS_HOST}
   db:
     image: mongo:7.0
     hostname: CommunereRAG-db
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: "CommunereRAG"
-      MONGO_INITDB_ROOT_PASSWORD: "CommunereRAG"
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
     command: "mongod"
     volumes:
       - db-data:/data/db
