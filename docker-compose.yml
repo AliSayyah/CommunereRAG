@@ -20,6 +20,11 @@ services:
       COMMUNERERAG_DB_PASS: ${DB_PASS}
       COMMUNERERAG_DB_BASE: ${DB_BASE}
       COMMUNERERAG_REDIS_HOST: ${REDIS_HOST}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   db:
     image: mongo:7.0
     hostname: CommunereRAG-db
@@ -37,13 +42,30 @@ services:
       retries: 40
 
   taskiq-worker:
-    <<: *main_app
-    labels: [ ]
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: communere_rag:${COMMUNERERAG_VERSION:-latest}
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      chroma:
+        condition: service_started
     command:
       - taskiq
       - worker
       - CommunereRAG.tkq:broker
-
+    environment:
+      COMMUNERERAG_HOST: 0.0.0.0
+      COMMUNERERAG_DB_HOST: ${DB_HOST}
+      COMMUNERERAG_DB_PORT: ${DB_PORT}
+      COMMUNERERAG_DB_USER: ${DB_USER}
+      COMMUNERERAG_DB_PASS: ${DB_PASS}
+      COMMUNERERAG_DB_BASE: ${DB_BASE}
+      COMMUNERERAG_REDIS_HOST: ${REDIS_HOST}
   chroma:
     image: chromadb/chroma:latest
     volumes:
@@ -52,7 +74,6 @@ services:
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=${PERSIST_DIRECTORY:-/chroma/chroma}
     healthcheck:
-      # Adjust below to match your container port
       test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat" ]
       interval: 30s
       timeout: 10s
