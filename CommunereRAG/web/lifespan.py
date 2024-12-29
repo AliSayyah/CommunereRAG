@@ -15,7 +15,7 @@ from CommunereRAG.db.models import load_all_models
 from CommunereRAG.services.redis.lifespan import init_redis, shutdown_redis
 from CommunereRAG.settings import settings
 from CommunereRAG.tkq import broker
-
+from openai import AsyncOpenAI
 
 async def _setup_db(app: FastAPI) -> None:
     client = AsyncIOMotorClient(str(settings.db_url))  # type: ignore
@@ -40,6 +40,10 @@ def _setup_nltk(app: FastAPI) -> None:
 
     nltk.download("punkt_tab")
 
+
+async def _setup_openai(app: FastAPI) -> None:
+    client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    app.state.openai_client = client
 
 def setup_prometheus(app: FastAPI) -> None:  # pragma: no cover
     """
@@ -71,6 +75,7 @@ async def lifespan_setup(
         await broker.startup()
     await _setup_db(app)
     await _setup_chroma(app)
+    await _setup_openai(app)
     _setup_nltk(app)
     init_redis(app)
     setup_prometheus(app)
