@@ -1,5 +1,4 @@
 import json
-from typing import List, Dict
 
 from chromadb.api.models import AsyncCollection
 from openai import AsyncOpenAI
@@ -15,27 +14,14 @@ async def retrieval_agent(query: str, top_k: int, chroma_collection: AsyncCollec
         documents.append({"content": doc, "metadata": metadata})
     return documents
 
-async def refinement_agent(openai_client: AsyncOpenAI, query: str, context: str, model: str = "gpt-4o"):
+async def refinement_agent(openai_client: AsyncOpenAI, context: str, model: str = "gpt-4o"):
     """
     Refines the response using the retrieved context and the LLM.
-
-    Args:
-        openai_client (AsyncOpenAI):
-        query (str): The user's query.
-        context (str): Retrieved documents and their metadata.
-        model (str): LLM model name.
-
-    Returns:
-        str: Refined response from the LLM.
     """
 
     messages = [
-        {"role": "system", "content": "Your task is to refine the context user sends to you based on the query. the final result should be a clean and clear text. only return the final result without extra text like 'here is your refined text:"},
-        {"role": "user", "content": json.dumps({
-            "query": query,
-            "context": context,
-        })},
-        {"role": "assistant", "content": context},
+        {"role": "system", "content": "Your task is to cleanup the context user sends to you. the final result should be a clean and clear text without extra characters. do not add or modify the text. only return the final result without extra text like 'here is your refined text:"},
+        {"role": "user", "content": context},
     ]
 
     response = await openai_client.chat.completions.create(
