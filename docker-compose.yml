@@ -47,10 +47,16 @@ services:
   chroma:
     image: chromadb/chroma:latest
     volumes:
-      - index_data:/chroma_storage
-#    environment:
-#      - CHROMA_DB_IMPL=duckdb+parquet
-#      - CHROMA_PERSIST_DIRECTORY=/chroma_storage
+      - index_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=${PERSIST_DIRECTORY:-/chroma/chroma}
+    healthcheck:
+      # Adjust below to match your container port
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: bitnami/redis:6.2.5
